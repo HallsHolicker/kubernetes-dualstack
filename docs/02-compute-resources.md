@@ -155,4 +155,4 @@ EOF
 vagrant up
 ```
 
-Next: [Bootstrapping Container Runtime](03-bootstrapping-container-runtime)
+Next: [Bootstrapping Container Runtime](03-bootstrapping-container-runtime.md)
