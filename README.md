@@ -34,4 +34,3 @@
 
 ## 참고 사이트
 * [Kubernetes The Hard Way](https://github.com/kelseyhightower/kubernetes-the-hard-way)
-* [IPv6 nginx](https://github.com/leblancd/kube-v6)

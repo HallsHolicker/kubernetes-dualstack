@@ -4,8 +4,8 @@
 
 ## Deploy Pods
 
-### nginx deploy
-IPv6가 가능 한 Nginx Deployment를 배포하겠습니다.
+### webpod deploy
+IPv6가 가능 한 webpod Deployment를 배포하겠습니다.
 
 접속 : `k8s-controller`
 
@@ -14,20 +14,20 @@ cat << EOF | kubectl apply -f -
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-deployment
+  name: webpod-deployment
 spec:
   selector:
     matchLabels:
-      app: nginx
+      app: webpod
   replicas: 2
   template:
     metadata:
       labels:
-        app: nginx
+        app: webpod
     spec:
       containers:
-      - name: nginx
-        image: diverdane/nginxdualstack:1.0.0
+      - name: webpod
+        image: traefik/whoami
         ports:
         - containerPort: 80
 EOF
@@ -45,7 +45,7 @@ kubectl get deploy
 
 ```
 NAME               READY   UP-TO-DATE   AVAILABLE   AGE
-nginx-deployment   2/2     2            2           23s
+webpod-deployment   2/2     2            2           23s
 ```
 
 pods 확인
@@ -57,50 +57,50 @@ kubectl get pods -o wide
 >output
 
 ```
-NAME                                READY   STATUS    RESTARTS   AGE   IP              NODE          NOMINATED NODE   READINESS GATES
-nginx-deployment-76d96cc579-58wmf   1/1     Running   0          53s   10.244.126.4    k8s-worker2   <none>           <none>
-nginx-deployment-76d96cc579-z7gd7   1/1     Running   0          53s   10.244.194.66   k8s-worker1   <none>           <none>
+NAME                                 READY   STATUS    RESTARTS   AGE   IP              NODE          NOMINATED NODE   READINESS GATES
+webpod-deployment-7b65f8c6cf-9drl5   1/1     Running   0          34s   10.244.194.68   k8s-worker1   <none>           <none>
+webpod-deployment-7b65f8c6cf-z5nn7   1/1     Running   0          34s   10.244.126.6    k8s-worker2   <none>           <none>
 ```
 
 pod 상세 정보 확인
 
 ```
-kubectl describe pods nginx-deployment-76d96cc579-58wmf
+kubectl describe pods webpod-deployment-7b65f8c6cf-9drl5
 ```
 
 >output 
 
 ```
-Name:         nginx-deployment-76d96cc579-58wmf
+Name:         webpod-deployment-7b65f8c6cf-9drl5
 Namespace:    default
 Priority:     0
-Node:         k8s-worker2/192.168.56.22
-Start Time:   Mon, 20 Dec 2021 01:03:04 +0900
-Labels:       app=nginx
-              pod-template-hash=76d96cc579
-Annotations:  cni.projectcalico.org/containerID: be33f441f30a908ad967cc507c8f938e9f8c4bedf889269d43d207a4d5b72f95
-              cni.projectcalico.org/podIP: 10.244.126.4/32
-              cni.projectcalico.org/podIPs: 10.244.126.4/32,2001:db8:42:47:5b8f:562b:2aae:7e03/128
+Node:         k8s-worker1/192.168.56.21
+Start Time:   Mon, 20 Dec 2021 01:36:51 +0900
+Labels:       app=webpod
+              pod-template-hash=7b65f8c6cf
+Annotations:  cni.projectcalico.org/containerID: 4e1f693d9b276d398283c03c4778e376b5447bb074b042a37edc38259ac0d998
+              cni.projectcalico.org/podIP: 10.244.194.68/32
+              cni.projectcalico.org/podIPs: 10.244.194.68/32,2001:db8:42:93:c54a:4054:9104:c243/128
 Status:       Running
-IP:           10.244.126.4
+IP:           10.244.194.68
 IPs:
-  IP:           10.244.126.4
-  IP:           2001:db8:42:47:5b8f:562b:2aae:7e03
-Controlled By:  ReplicaSet/nginx-deployment-76d96cc579
+  IP:           10.244.194.68
+  IP:           2001:db8:42:93:c54a:4054:9104:c243
+Controlled By:  ReplicaSet/webpod-deployment-7b65f8c6cf
 Containers:
-  nginx:
-    Container ID:   containerd://dcd039c3e436f6041a48e8af499e9bef1a18f931ba9be93e9cc12052a91c140d
-    Image:          diverdane/nginxdualstack:1.0.0
-    Image ID:       docker.io/diverdane/nginxdualstack@sha256:681393039246e4328778ff566492606220ee8bdc1829fc8488fc1574b9e0f543
+  webpod:
+    Container ID:   containerd://0fd646dc781e3f1d4af272eeda0567fa6e65b5498f1a8549491176f9f90f1d63
+    Image:          traefik/whoami
+    Image ID:       docker.io/traefik/whoami@sha256:615ee4ae89e143eb4d8261a2699ad4659b5bcc70156928e1a721e088f458a38d
     Port:           80/TCP
     Host Port:      0/TCP
     State:          Running
-      Started:      Mon, 20 Dec 2021 01:03:20 +0900
+      Started:      Mon, 20 Dec 2021 01:36:54 +0900
     Ready:          True
     Restart Count:  0
     Environment:    <none>
     Mounts:
-      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-hlrv8 (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-kn96c (ro)
 Conditions:
   Type              Status
   Initialized       True
@@ -108,7 +108,7 @@ Conditions:
   ContainersReady   True
   PodScheduled      True
 Volumes:
-  kube-api-access-hlrv8:
+  kube-api-access-kn96c:
     Type:                    Projected (a volume that contains injected data from multiple sources)
     TokenExpirationSeconds:  3607
     ConfigMapName:           kube-root-ca.crt
@@ -121,11 +121,11 @@ Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists fo
 Events:
   Type    Reason     Age   From               Message
   ----    ------     ----  ----               -------
-  Normal  Scheduled  109s  default-scheduler  Successfully assigned default/nginx-deployment-76d96cc579-58wmf to k8s-worker2
-  Normal  Pulling    107s  kubelet            Pulling image "diverdane/nginxdualstack:1.0.0"
-  Normal  Pulled     92s   kubelet            Successfully pulled image "diverdane/nginxdualstack:1.0.0" in 15.331683071s
-  Normal  Created    92s   kubelet            Created container nginx
-  Normal  Started    92s   kubelet            Started container nginx
+  Normal  Scheduled  50s   default-scheduler  Successfully assigned default/webpod-deployment-7b65f8c6cf-9drl5 to k8s-worker1
+  Normal  Pulling    49s   kubelet            Pulling image "traefik/whoami"
+  Normal  Pulled     47s   kubelet            Successfully pulled image "traefik/whoami" in 1.973552345s
+  Normal  Created    47s   kubelet            Created container webpod
+  Normal  Started    47s   kubelet            Started container webpod
 ```
 
 기본적인 pod의 정보에는 IPv6의 주소가 없는 것 처럼 보이지만, 상세 정보를 들어가 보면 IPv6 주소가 할당되어 있는것이 확인 가능합니다.
@@ -148,10 +148,10 @@ metadata:
     purelb.io/allocated-from: ipv4-routed
     purelb.io/service-group: ipv4-routed
   creationTimestamp: "2021-09-07T12:29:29Z"
-  name: nginx-service
+  name: webpod-service
   namespace: default
   resourceVersion: "1471429"
-  selfLink: /api/v1/namespaces/default/services/nginx-service
+  selfLink: /api/v1/namespaces/default/services/webpod-service
   uid: ca7c289e-bacb-45e0-9b3f-51b67eec7429
 spec:
   allocateLoadBalancerNodePorts: true
@@ -167,7 +167,7 @@ spec:
     protocol: TCP
     targetPort: 80
   selector:
-    app: nginx
+    app: webpod
   sessionAffinity: None
   type: LoadBalancer
 status:
@@ -185,10 +185,10 @@ metadata:
     purelb.io/allocated-from: ipv6-routed
     purelb.io/service-group: ipv6-routed
   creationTimestamp: "2021-09-07T14:50:55Z"
-  name: nginx-service-ip6
+  name: webpod-service-ip6
   namespace: default
   resourceVersion: "1471462"
-  selfLink: /api/v1/namespaces/default/services/nginx-service-ip6
+  selfLink: /api/v1/namespaces/default/services/webpod-service-ip6
   uid: 9d25ca30-3379-423a-92cb-7c66318be03e
 spec:
   allocateLoadBalancerNodePorts: true
@@ -204,7 +204,7 @@ spec:
     protocol: TCP
     targetPort: 80
   selector:
-    app: nginx
+    app: webpod
   sessionAffinity: None
   type: LoadBalancer
 status:
@@ -226,10 +226,10 @@ kubectl get svc -o wide
 >output
 
 ```
-NAME                TYPE           CLUSTER-IP            EXTERNAL-IP            PORT(S)        AGE   SELECTOR
-kubernetes          ClusterIP      10.96.0.1             <none>                 443/TCP        43m   <none>
-nginx-service       LoadBalancer   10.96.242.195         172.30.200.155         80:31292/TCP   4s    app=nginx
-nginx-service-ip6   LoadBalancer   2001:db8:42:1::d61d   2001:470:8bf5:2:2::1   80:30091/TCP   4s    app=nginx
+NAME                 TYPE           CLUSTER-IP            EXTERNAL-IP            PORT(S)        AGE   SELECTOR
+kubernetes           ClusterIP      10.96.0.1             <none>                 443/TCP        68m   <none>
+webpod-service       LoadBalancer   10.96.67.187          172.30.200.155         80:31292/TCP   6s    app=webpod
+webpod-service-ip6   LoadBalancer   2001:db8:42:1::193d   2001:470:8bf5:2:2::1   80:30091/TCP   6s    app=webpod
 ```
 
 
@@ -242,10 +242,10 @@ kubectl get endpoints
 >output
 
 ```
-NAME                TYPE           CLUSTER-IP            EXTERNAL-IP            PORT(S)        AGE   SELECTOR
-kubernetes          ClusterIP      10.96.0.1             <none>                 443/TCP        43m   <none>
-nginx-service       LoadBalancer   10.96.242.195         172.30.200.155         80:31292/TCP   4s    app=nginx
-nginx-service-ip6   LoadBalancer   2001:db8:42:1::d61d   2001:470:8bf5:2:2::1   80:30091/TCP   4s    app=nginx
+NAME                 ENDPOINTS                                                                         AGE
+kubernetes           192.168.56.11:6443                                                                69m
+webpod-service       10.244.126.6:80,10.244.194.68:80                                                  20s
+webpod-service-ip6   [2001:db8:42:47:5b8f:562b:2aae:7e05]:80,[2001:db8:42:93:c54a:4054:9104:c243]:80   20s
 ```
 
 BGP 전파 확인
@@ -310,23 +310,17 @@ curl -s 172.30.200.155
 >output
 
 ```
-<!DOCTYPE html>
-<html>
-<head>
-<title>Kubernetes IPv6 nginx</title>
-<style>
-    body {
-        width: 35em;
-        margin: 0 auto;
-        font-family: Tahoma, Verdana, Arial, sans-serif;
-    }
-</style>
-</head>
-<body>
-<h1>Welcome to nginx on <span style="color:  #C70039">IPv6</span> Kubernetes!</h1>
-<p>Pod: nginx-deployment-76d96cc579-z7gd7</p>
-</body>
-</html>
+Hostname: webpod-deployment-7b65f8c6cf-9drl5
+IP: 127.0.0.1
+IP: ::1
+IP: 10.244.194.68
+IP: 2001:db8:42:93:c54a:4054:9104:c243
+IP: fe80::f040:71ff:feb6:6557
+RemoteAddr: 192.168.57.10:60600
+GET / HTTP/1.1
+Host: 172.30.200.155
+User-Agent: curl/7.61.1
+Accept: */*
 ```
 
 IPv6 VIP로 통신 테스트
@@ -338,21 +332,15 @@ curl -g [2001:470:8bf5:2:2::1]
 >output
 
 ```
-<!DOCTYPE html>
-<html>
-<head>
-<title>Kubernetes IPv6 nginx</title>
-<style>
-    body {
-        width: 35em;
-        margin: 0 auto;
-        font-family: Tahoma, Verdana, Arial, sans-serif;
-    }
-</style>
-</head>
-<body>
-<h1>Welcome to nginx on <span style="color:  #C70039">IPv6</span> Kubernetes!</h1>
-<p>Pod: nginx-deployment-76d96cc579-58wmf</p>
-</body>
-</html>
+Hostname: webpod-deployment-7b65f8c6cf-z5nn7
+IP: 127.0.0.1
+IP: ::1
+IP: 10.244.126.6
+IP: 2001:db8:42:47:5b8f:562b:2aae:7e05
+IP: fe80::64f6:5aff:fe2e:acae
+RemoteAddr: [192:168:57::10]:55578
+GET / HTTP/1.1
+Host: [2001:470:8bf5:2:2::1]
+User-Agent: curl/7.61.1
+Accept: */*
 ```
