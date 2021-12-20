@@ -4,7 +4,7 @@
 
 ## Architecture
 
-![architecture](docs/images/kubernetes_onprem_lab.png "architecture")
+![architecture](docs/images/kubernetes_dualstack.png "architecture")
 
 * CNI는 Calico를 사용하였습니다.
 * On-premise의 환경에서 사용하는 LoadBalancer는 PureLB로 구성하였습니다.
